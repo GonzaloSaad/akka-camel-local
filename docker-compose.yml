@@ -1,0 +1,15 @@
+version: '3.7'
+
+services:
+  localstack4akka:
+    image: localstack/localstack
+    hostname: localhost
+    container_name: localstack4akka
+    ports:
+      - 0:4576
+      - 0:8080
+    environment:
+      SERVICES: sqs
+      HOSTNAME_EXTERNAL: localhost
+      HOSTNAME: localhost
+      DEFAULT_REGION: us-east-1

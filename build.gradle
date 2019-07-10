@@ -1,0 +1,78 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'application'
+apply plugin: 'maven'
+apply plugin: 'docker-compose'
+
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+    }
+    dependencies {
+        classpath "com.avast.gradle:gradle-docker-compose-plugin:0.8.13"
+    }
+}
+
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    compile 'com.typesafe.akka:akka-actor_2.11:2.4.16'
+    compile group: 'org.apache.camel', name: 'camel-jms', version: '2.19.3'
+    compile group: 'com.typesafe.akka', name: 'akka-camel_2.11', version: '2.3.16'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-sqs', version: '1.11.584'
+    compile group: 'com.amazonaws', name: 'amazon-sqs-java-messaging-lib', version: '1.0.5'
+    compile 'javax.jms:javax.jms-api:2.0.1'
+    compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.26'
+    testCompile 'junit:junit:4.12'
+    testCompile 'com.typesafe.akka:akka-testkit_2.11:2.4.16'
+}
+
+dockerCompose {
+
+    useComposeFiles = ["./docker-compose.yml"]
+    startedServices = ['localstack4akka']
+    forceRecreate = false
+    buildBeforeUp = true
+    buildBeforePull = true
+    ignorePushFailure = false
+    buildAdditionalArgs = ['--force-rm']
+
+    //logging
+    captureContainersOutput = false
+    captureContainersOutputToFile = "${buildDir.path}/logs/all_container_logs.txt"
+    //separate logs for all the containers
+    containerLogToDir = project.file("${buildDir.path}/logs")
+    captureContainersOutputToFiles = "${buildDir.path}/logs/separated"
+
+    waitForTcpPorts = true
+
+    removeContainers = true
+    removeVolumes = true
+    removeOrphans = true
+}
+
+mainClassName = "org.poc.akka.AkkaMain"
+
+run {
+    standardInput = System.in
+    doFirst{
+        def sqsPort = getPublicPortOfContainer("localstack4akka", 4576)
+        systemProperty 'SQS_PORT', sqsPort
+    }
+}
+
+def getPublicPortOfContainer(containerName, containerPort){
+    def dockerPortCommand = "docker port %s %s"
+    def command = String.format(dockerPortCommand, containerName, containerPort)
+    def result = command.execute().text.trim()
+    return result.substring(result.indexOf(":") + 1)
+}
+
+run.dependsOn composeUp
+run.finalizedBy composeDown
+
