@@ -1,4 +1,4 @@
-package org.poc.akka.registry;
+package org.poc.akka.camel.registry;
 
 import org.apache.camel.impl.SimpleRegistry;
 

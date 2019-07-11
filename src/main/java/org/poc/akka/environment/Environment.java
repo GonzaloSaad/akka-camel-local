@@ -1,4 +1,4 @@
-package org.poc.akka;
+package org.poc.akka.environment;
 
 import java.util.Optional;
 
@@ -7,7 +7,6 @@ public class Environment {
     private static final String DEFAULT_ENDPOINT_TEMPLATE = "http://localhost:%s/";
     private static final String DEFAULT_REGION = "us-east-1";
     private static final String DEFAULT_PORT = "4576";
-
 
     public static String getBaseEndpoint(){
         return Optional.ofNullable(System.getProperty("SQS_ENDPOINT"))

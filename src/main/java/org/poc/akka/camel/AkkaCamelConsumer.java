@@ -1,19 +1,19 @@
 package org.poc.akka.camel;
 
-import akka.actor.Props;
 import akka.camel.javaapi.UntypedConsumerActor;
-import org.poc.akka.supplier.JMSRouteSupplier;
+import org.poc.akka.camel.route.RouteSupplier;
 
-import java.util.function.Supplier;
+import java.util.function.Consumer;
 
 public class AkkaCamelConsumer extends UntypedConsumerActor {
 
-    private final Supplier<String> routeSupplier;
+    private final RouteSupplier routeSupplier;
+    private final Consumer camelMessageConsumer;
 
-    public AkkaCamelConsumer(Supplier<String> routeSupplier) {
+    public AkkaCamelConsumer(RouteSupplier routeSupplier, Consumer camelMessageConsumer) {
         this.routeSupplier = routeSupplier;
+        this.camelMessageConsumer = camelMessageConsumer;
     }
-
 
     @Override
     public String getEndpointUri() {
@@ -22,10 +22,7 @@ public class AkkaCamelConsumer extends UntypedConsumerActor {
 
     @Override
     public void onReceive(Object message) throws Throwable {
-        System.out.println(message);
+        camelMessageConsumer.accept(message);
     }
 
-    public static Props props() {
-        return Props.create(AkkaCamelConsumer.class, () -> new AkkaCamelConsumer(new JMSRouteSupplier("camelQueue")));
-    }
 }

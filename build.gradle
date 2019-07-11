@@ -56,7 +56,7 @@ dockerCompose {
     removeOrphans = true
 }
 
-mainClassName = "org.poc.akka.AkkaMain"
+mainClassName = "org.poc.akka.Main"
 
 run {
     standardInput = System.in

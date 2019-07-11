@@ -1,8 +1,6 @@
-package org.poc.akka.supplier;
+package org.poc.akka.camel.route;
 
-import java.util.function.Supplier;
-
-public class SQSRouteSupplier implements Supplier<String> {
+public class SQSRouteSupplier implements RouteSupplier {
 
     private final String queueName;
 
